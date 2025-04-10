@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gaming Clip Timer</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .timer-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-800">
+    <div class="timer-container">
+        <div id="root"></div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const GamingClipTimer = () => {
+          const [timeLeft, setTimeLeft] = useState(30);
+          const [isRunning, setIsRunning] = useState(false);
+          const [cycles, setCycles] = useState(0);
+          
+          const beepRef = useRef(null);
+          const clipRef = useRef(null);
+          
+          useEffect(() => {
+            // Create audio elements for the sounds
+            beepRef.current = new Audio();
+            beepRef.current.src = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YWoGAACBhYqFbF1fdJivrJBhNxlSpMLMrGEcBme24d/DfxsAWqvh+NSFKQBQl9f+6ps9AEuH0Af4p0EAQ3rLCwOvRQA/d8kTDLlKAD15yhsUw1AAPn3LIxzLVQA9gMwpItFbADuEzTEn12EAOYjOMyzdbQAzhc8wMOZ6AC57yiYr8o0AJ2fBFiPqoAAhUbYMGNi0ABtBrAQNvMsAGDCmAAKm5AAXJKMAAoTyABcgnwADYPgAGCKdAARB/QAYIpwABSQBABkinAAGCgMAGSObAAb1BAAbJJsAB+gGAB4nmgAI2wgAIiuZAAnQCgAmL5gACsYMACorluMLvA0ALzCWFA2zDwAzM5VeD6oQADc3lKsRoxIAOzuTEBOXFAA+QZPOFIsWAEFKkiwWgBgAPEeSEBh1GgA2SJAAGmocAC5KjgAcYB0AJUuMAB5WHgAcTYoAIEsfABJQiAAiQSAAClKGACQzIQADVYUAJSQiAABYgwAmFSIAAFuCACcGIwAAXoEAKPojAACCXAAo3SUAAK9HACjIJwAA4ToAKLMoAAARMgAooCkAAEcqAClNKwAAeyIAKTopAACvGwAqKCoAAN4VACsWKgABDBEALAUrAAE7DQAtcioAAnkKAC5gKQADtgcAL04oAATzBAAwOycABjACADE1JgAHbP8AMjAlAAlp/AAzViQAC2j5ADRLIwANZ/YANVgiAA5n8wA2bCEAEGfwADh2HwATZ+0AOn8eABZn6gA9kR0AGmfnAECbGwAeZ+QAQ6QZACJn4gBGrRcAJ2ffAEe1FgArZ90ASLwUAC9n2wBJwxMAdGZ8AErJEgD/ZgAAS9AQALJmZQBL1w8AjGaJAEzeDQB3Zp0ATOQMAGtmrgBM6goAYma+AEzwCQBbZs0ATPYHAFVm2wBM/AYAUGbpAE0CBQBLZvYATQcDAEhmAgFNCQIARmYNAEwPAQBDZhYATBP/AEFmHwBLGP4APmYoAEsc/QA8ZjAASyH7ADpmOABKJfoAOWZAAEop+QA3ZkgASi34ADZmTwBJMfcANWZWAEk19QA0Zl0ASUD0ADNmYwBIRPMAMmZpAEhI8gAxZm8ASEzxAC9mdQBHUPAALmZ6AEdU7wAtZoAARljuACxmhQBGXe0AK2aKAEVh7AArZo8ARWXrACpmlABEaeoAKWaZAERt6QAoZp4ARHHoACdmowBDdecAJmaoAEN55gAlZq0AQn3lACVmsgBCgeQAJGa2AEKl4wAkZrsAQgjjACRmvwBCMuIAJGbDAEJb4QAkZscAQoXgACRmywBC794AJGbPAEMY3QAkZtMARULcACRm1wBI+NoAJWbbAE/C2QAmZuAAZLzXACdm5QCT3tYAKGbpAP9m1QArZu4A/2bWAC9m8gD/ZtcANWb2AP9m2AA9ZvoAQmbZAEVm/ACKZtoA/2b+AP9m2wD/ZtsA/2bbAP9m2wD/ZtsA/2bbAP9m2wD/ZtsA/2bb";
+            
+            clipRef.current = new Audio();
+            clipRef.current.src = "data:audio/wav;base64,UklGRpYDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YXIDAAB0f39plH5sfn59gYCAfoJ/gIF/gIJ/hISEgX+Afn+BgoiMkI+OiYJ5aFVMVWZwdXR0gZassLargW9fUExNVGBqdYCMnrK5ta+hlol4YktCRlJcY297jKCvtbaytbW0sp+DVj4vMENOT1BYd5ywvsrGwK6hkntdNB0ZKDg8PT9GVnWZs8HGwri0rJN1VS0NDyU1ODEyQFl1lKu4vrq5uLOfgVsuDgkkMzEuM0NZcYehsbm7u7u1pYpkMw0GIC4vKS9EWGuEla23vb69t6qaclEkDBkmLCorM0pfcIKNpbO9wb+3qphwSSEMHS0uKi01UF5teoaerb7Gw7eolmw/HBEjMC8tMTdSX2t3hJ2vxM3HtZ2DWS8VIDM0MTQ3SVNhboCasMvb07maeUYkHS85NjM1OEFMWm2JqMfa18mpjGMzGio6OTU0OD9JV26QsNLh2MSZcjwaKTo7Njc7QU1ebYmly9rRuZJoQCMsODs3OT5GU2Z2mLnQ18amdEoqLjk8Oj5CSlhogajK0cOvjmE6KjM5Oz9FTVxthqTDy72shls4LDQ5PUJKVmV1krDFx7aefVMwLjY9Q0lTXm6Ho7/Au6eKYDkvNT5ES1VeaoKdtri0qI5nRTA0PENKUVlmeZOntbSslXFMNDM7QklRWGR1jKGvsq+fgFg8MjpBR09XXGqAk6SqqJyEYkc2N0BHTlZda36On6WjmoZmSzo3PUNKUV1qfYuaoaCYhmhPPTpAS1FaZnN+i5OXlYt1WkU+PkRMUVpkcn6JkI+KeGBMQT5CTlNaZG97hImJgW5bSkFBRk9SWGFveoKDfm9eUUdDRk5RVFtndHp7dmxcUUpHSU9SVVtkcXNwaV1VT0pLTlFVWWBmZ2VeWFNQTk1PUVVZXF9eW1dUUU9OTlBTVVdZWVhWU1FQUFBQU1VWWFdVU1FQT01OS01SWFxeXVpWUk9LRkRFSlBYYGVnZWFeWE9IRkdMU1tlaGlnYllPRkBASE9ZYmdsbWlhV0xFQUFGTFVgZ2lnY2FdzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM";
+            
+            return () => {
+              if (beepRef.current) beepRef.current.pause();
+              if (clipRef.current) clipRef.current.pause();
+            };
+          }, []);
+
+          useEffect(() => {
+            let interval = null;
+            
+            if (isRunning) {
+              interval = setInterval(() => {
+                setTimeLeft((prevTime) => {
+                  // Play beep sound at 5 seconds remaining (25 second mark)
+                  if (prevTime === 6) {
+                    beepRef.current.play();
+                  }
+                  
+                  // Play clip sound and reset timer at 0 seconds
+                  if (prevTime === 1) {
+                    clipRef.current.play();
+                    setCycles(prev => prev + 1);
+                    return 30; // Reset to 30 seconds
+                  }
+                  
+                  return prevTime - 1;
+                });
+              }, 1000);
+            }
+            
+            return () => {
+              if (interval) {
+                clearInterval(interval);
+              }
+            };
+          }, [isRunning]);
+          
+          const toggleTimer = () => {
+            setIsRunning(!isRunning);
+            if (!isRunning && timeLeft === 0) {
+              setTimeLeft(30);
+            }
+          };
+          
+          const resetTimer = () => {
+            setIsRunning(false);
+            setTimeLeft(30);
+            setCycles(0);
+          };
+          
+          // Calculate the progress percentage for the pie chart
+          const progress = ((30 - timeLeft) / 30) * 100;
+          const circumference = 2 * Math.PI * 45; // 45 is the radius
+          const strokeDashoffset = circumference * (1 - progress / 100);
+          
+          // Determine color based on time left
+          let circleColor = "#4CAF50"; // Green
+          if (timeLeft <= 5) {
+            circleColor = "#FF5252"; // Red
+          } else if (timeLeft <= 10) {
+            circleColor = "#FFC107"; // Yellow
+          }
+          
+          return (
+            <div className="flex flex-col items-center justify-center w-full h-full bg-gray-900 p-6 rounded-lg" style={{maxWidth: "500px", maxHeight: "600px"}}>
+              <div className="text-center mb-4">
+                <h1 className="text-4xl font-bold text-white mb-1">CLIP TIMER</h1>
+                <p className="text-xl text-gray-300">Cycles: {cycles}</p>
+              </div>
+              
+              <div className="relative w-64 h-64 mb-6">
+                {/* Background circle */}
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="45"
+                    fill="transparent"
+                    stroke="#333"
+                    strokeWidth="8"
+                  />
+                  
+                  {/* Progress circle */}
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="45"
+                    fill="transparent"
+                    stroke={circleColor}
+                    strokeWidth="8"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    transform="rotate(-90 50 50)"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                
+                {/* Centered time text */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-7xl font-bold text-white">{timeLeft}</span>
+                </div>
+              </div>
+              
+              <div className="flex space-x-4">
+                <button 
+                  onClick={toggleTimer}
+                  className={`px-6 py-3 text-xl font-bold rounded-lg transition-colors ${isRunning ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white`}
+                >
+                  {isRunning ? 'STOP' : 'START'}
+                </button>
+                
+                <button 
+                  onClick={resetTimer}
+                  className="px-6 py-3 text-xl font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  RESET
+                </button>
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<GamingClipTimer />, document.getElementById('root'));
+    </script>
+</body>
+</html>
